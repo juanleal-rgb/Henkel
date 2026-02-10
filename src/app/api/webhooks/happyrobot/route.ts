@@ -78,12 +78,6 @@ type WebhookPayload =
  */
 export async function POST(request: NextRequest) {
   try {
-    // Validate API key
-    const apiKey = request.headers.get("x-api-key");
-    if (!apiKey || apiKey !== process.env.HAPPYROBOT_WEBHOOK_SECRET) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const payload = (await request.json()) as WebhookPayload;
     const timestamp = new Date().toISOString();
 
