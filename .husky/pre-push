@@ -2,7 +2,7 @@
 
 # Full build check before pushing
 echo "🏗️  Running build check..."
-bun run build || {
+npm run build || {
   echo "❌ Build failed. Fix errors before pushing."
   exit 1
 }
