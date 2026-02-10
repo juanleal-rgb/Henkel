@@ -369,7 +369,7 @@ export function NavRail() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
 
   // Determine which logo to use based on theme and expanded state
-  const logoSrc = "/henkel/Henkel-logo.svg.png";
+  const logoSrc = "/henkel/Henkel-Logo.svg.png";
 
   return (
     <>

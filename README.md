@@ -467,7 +467,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 Email: admin@henkel.com
 Password: AdmiU99&$
-```
+`
 
 ---
 
@@ -527,22 +527,24 @@ Password: AdmiU99&$
 
 2. **Configure Environment**
 
-   ```
-   DATABASE_URL=${{Postgres.DATABASE_URL}}
+```
+
+DATABASE_URL=${{Postgres.DATABASE_URL}}
    REDIS_URL=${{Redis.REDIS_URL}}
-   NEXTAUTH_SECRET=<generate>
-   NEXTAUTH_URL=https://your-app.railway.app
-   ... (other env vars)
-   ```
+NEXTAUTH_SECRET=<generate>
+NEXTAUTH_URL=https://your-app.railway.app
+... (other env vars)
+
+````
 
 3. **Deploy**
-   - Railway auto-deploys on push to main
-   - Uses Dockerfile for build
+- Railway auto-deploys on push to main
+- Uses Dockerfile for build
 
 4. **Set Up Cron Job**
-   - Create Railway cron service
-   - Schedule: `*/5 * * * *` (every 5 minutes)
-   - Command: `curl -H "Authorization: Bearer $CRON_SECRET" https://your-app.railway.app/api/cron/process-queue`
+- Create Railway cron service
+- Schedule: `*/5 * * * *` (every 5 minutes)
+- Command: `curl -H "Authorization: Bearer $CRON_SECRET" https://your-app.railway.app/api/cron/process-queue`
 
 ### Railway Configuration
 
@@ -557,7 +559,7 @@ healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
-```
+````
 
 ---
 

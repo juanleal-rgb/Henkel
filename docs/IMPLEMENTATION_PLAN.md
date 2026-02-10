@@ -423,7 +423,7 @@ import { Upload } from "lucide-react";
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  TRINITY APP                          HAPPYROBOT PLATFORM               │
+│  HENKEL APP                          HAPPYROBOT PLATFORM               │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  Queue Processor ─────POST────────→ Incoming Webhook                    │

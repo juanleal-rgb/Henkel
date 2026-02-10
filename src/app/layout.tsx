@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "Henkel PO Caller",
   description: "AI-powered Purchase Order caller system",
   icons: {
-    icon: "/henkel/Henkel-logo.svg.png",
+    icon: "/henkel/Henkel-Logo.svg.png",
   },
 };
 
