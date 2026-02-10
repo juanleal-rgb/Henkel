@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Full build check before pushing
+echo "🏗️  Running build check..."
+bun run build || {
+  echo "❌ Build failed. Fix errors before pushing."
+  exit 1
+}
+
+echo "✅ Pre-push checks passed!"
