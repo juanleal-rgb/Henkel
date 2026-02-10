@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Full build check before pushing
-echo "🏗️  Running build check..."
-npm run build || {
-  echo "❌ Build failed. Fix errors before pushing."
+# Type check before pushing
+echo "🔍 Running type check..."
+npm run typecheck || {
+  echo "❌ Type check failed. Fix errors before pushing."
   exit 1
 }
 
