@@ -217,7 +217,7 @@ function DemoConfigModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   );
 }
 
-// Navigation items for Trinity PO Caller
+// Navigation items for Henkel PO Caller
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "chart" },
   { href: "/suppliers", label: "Suppliers", icon: "users" },
@@ -371,11 +371,11 @@ export function NavRail() {
   // Determine which logo to use based on theme and expanded state
   const logoSrc = sidebarExpanded
     ? theme === "dark"
-      ? "/trinity/TRN-expanded-white.png"
-      : "/trinity/TRN-expanded-black.png"
+      ? "/henkel/HNK-expanded-white.png"
+      : "/henkel/HNK-expanded-black.png"
     : theme === "dark"
-      ? "/trinity/TRN-small-white.png"
-      : "/trinity/TRN-small-black.png";
+      ? "/henkel/HNK-small-white.png"
+      : "/henkel/HNK-small-black.png";
 
   return (
     <>
@@ -390,7 +390,7 @@ export function NavRail() {
           <Link href="/dashboard" className="flex items-center">
             <Image
               src={logoSrc}
-              alt="Trinity Railways"
+              alt="Henkel Railways"
               width={sidebarExpanded ? 140 : 32}
               height={32}
               className="object-contain"
@@ -487,12 +487,12 @@ export function NavRail() {
             </div>
 
             {/* User name (only when expanded) */}
-            {sidebarExpanded && <span className="truncate text-sm text-fg-secondary">Trinity</span>}
+            {sidebarExpanded && <span className="truncate text-sm text-fg-secondary">Henkel</span>}
 
             {/* Tooltip (only when collapsed) */}
             {!sidebarExpanded && (
               <span className="absolute left-full ml-2 hidden rounded bg-bg-elevated px-2 py-1 text-caption text-fg-primary shadow-lg group-hover:block">
-                Trinity
+                Henkel
               </span>
             )}
           </div>

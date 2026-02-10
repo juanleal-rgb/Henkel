@@ -213,8 +213,8 @@ export default function LoginPage() {
         {/* Logo */}
         <div ref={logoRef} className="mb-10 flex flex-col items-center">
           <Image
-            src="/trinity/TRN-expanded-white.png"
-            alt="Trinity Railways"
+            src="/henkel/HNK-expanded-white.png"
+            alt="Henkel"
             width={200}
             height={80}
             priority
@@ -244,7 +244,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@trinity.com"
+              placeholder="admin@henkel.com"
               required
               autoComplete="email"
               className="linear-input"
@@ -323,7 +323,7 @@ export default function LoginPage() {
 
           {/* Footer hint */}
           <p className="text-center text-[12px] text-white/30">
-            Demo: admin@trinity.com / AdmiU99&$
+            Demo: admin@henkel.com / AdmiU99&$
           </p>
         </form>
       </div>
@@ -347,7 +347,7 @@ export default function LoginPage() {
             ref={transitionTextRef}
             className="mt-6 text-center text-[13px] font-medium tracking-[0.2em] text-white/50"
           >
-            HAPPYROBOT × TRINITY
+            HAPPYROBOT × HENKEL
           </div>
         </div>
       )}

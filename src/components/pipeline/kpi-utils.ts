@@ -278,7 +278,7 @@ export function generateKPIsFromStats(stats: StatsResponse): KPIData[] {
 // ============================================================================
 
 /**
- * Format number as currency (USD for Trinity)
+ * Format number as currency (USD for Henkel)
  */
 export function formatCurrency(value: number): string {
   if (value >= 1000000) {

@@ -1,8 +1,8 @@
 /**
- * Database Seed Script - Trinity PO Caller
+ * Database Seed Script - Henkel PO Caller
  *
  * Creates initial data:
- * - Admin user (admin@trinity.com / AdmiU99&$)
+ * - Admin user (admin@henkel.com / AdmiU99&$)
  * - System configuration defaults
  *
  * Run with: bun run db:seed
@@ -23,7 +23,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("🌱 Seeding Trinity PO Caller database...\n");
+  console.log("🌱 Seeding Henkel PO Caller database...\n");
 
   // ============================================================================
   // 1. Create Admin User
@@ -33,12 +33,12 @@ async function main() {
   const passwordHash = await hash("AdmiU99&$", 10);
 
   const admin = await prisma.user.upsert({
-    where: { email: "admin@trinity.com" },
+    where: { email: "admin@henkel.com" },
     update: {
       passwordHash,
     },
     create: {
-      email: "admin@trinity.com",
+      email: "admin@henkel.com",
       name: "Admin User",
       passwordHash,
       role: "ADMIN",
@@ -109,7 +109,7 @@ async function main() {
   console.log(`      - 1 Admin user`);
   console.log(`      - ${configDefaults.length} System config entries\n`);
   console.log(`   🔐 Login credentials:`);
-  console.log(`      Email: admin@trinity.com`);
+  console.log(`      Email: admin@henkel.com`);
   console.log(`      Password: AdmiU99&$\n`);
 }
 

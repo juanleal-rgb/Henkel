@@ -24,7 +24,7 @@ import { useBatchLogs, type BatchLogEntry } from "@/hooks/use-batch-logs";
 import gsap from "gsap";
 
 // HappyRobot Platform configuration
-const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "trinityrailindustries";
+const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "henkel";
 const HAPPYROBOT_WORKFLOW_ID = process.env.NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID || "8gfcg9ucq0pb";
 
 const getRunUrl = (runId: string) =>

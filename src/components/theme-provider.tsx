@@ -23,7 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Load theme from localStorage on mount
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("trinity-theme") as Theme | null;
+    const stored = localStorage.getItem("henkel-theme") as Theme | null;
     if (stored) {
       setTheme(stored);
     }
@@ -36,7 +36,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
-    localStorage.setItem("trinity-theme", theme);
+    localStorage.setItem("henkel-theme", theme);
   }, [theme, mounted]);
 
   const toggleTheme = () => {

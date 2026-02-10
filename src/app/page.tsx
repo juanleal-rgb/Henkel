@@ -10,7 +10,7 @@ import { LoadingAnimation } from "@/components/loading-animation";
  * Root page - Entry point for the application
  *
  * Flow:
- * - If authenticated: Show HAPPYROBOT × TRINITY animation → redirect to /dashboard
+ * - If authenticated: Show HAPPYROBOT × HENKEL animation → redirect to /dashboard
  * - If not authenticated: Redirect to /login
  * - While checking: Show loading state
  */

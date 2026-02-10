@@ -2,14 +2,14 @@
 
 # Type check
 echo "🔍 Running type check..."
-bun run typecheck || {
+npm run typecheck || {
   echo "❌ Type check failed. Fix errors before committing."
   exit 1
 }
 
 # Run lint-staged (prettier + eslint on staged files)
 echo "🧹 Running lint-staged..."
-bunx lint-staged || {
+npx lint-staged || {
   echo "❌ Lint-staged failed. Fix errors before committing."
   exit 1
 }

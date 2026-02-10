@@ -1,4 +1,4 @@
-// Pipeline State Types - Trinity PO Caller Batch Pipeline
+// Pipeline State Types - Henkel PO Caller Batch Pipeline
 
 import type { BatchStatus, POActionType } from "@/lib/validators";
 

@@ -1,4 +1,4 @@
-# Trinity PO Caller
+# Henkel PO Caller
 
 > AI-powered Purchase Order management system with automated supplier communication via HappyRobot AI agents.
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Trinity PO Caller automates supplier communication for purchase order updates at Trinity Industries. The system processes Excel files containing PO data, classifies orders by action type (Cancel, Expedite, Push Out), creates optimized call batches, and leverages HappyRobot AI agents to make automated phone calls to suppliers.
+Henkel PO Caller automates supplier communication for purchase order updates at Henkel. The system processes Excel files containing PO data, classifies orders by action type (Cancel, Expedite, Push Out), creates optimized call batches, and leverages HappyRobot AI agents to make automated phone calls to suppliers.
 
 **Key Capabilities**:
 
@@ -25,7 +25,7 @@ Trinity PO Caller automates supplier communication for purchase order updates at
 
 ### The Problem
 
-Trinity Industries manages thousands of purchase orders across hundreds of suppliers. When supply chain conditions change, buyers need to communicate PO updates to suppliers:
+Henkel manages thousands of purchase orders across hundreds of suppliers. When supply chain conditions change, buyers need to communicate PO updates to suppliers:
 
 - **CANCEL**: PO no longer needed
 - **EXPEDITE**: Need delivery sooner than original due date
@@ -410,8 +410,8 @@ erDiagram
 
 ```bash
 # Clone repository
-git clone https://github.com/happyrobot-ai/trinity-po-caller.git
-cd trinity-po-caller
+git clone https://github.com/happyrobot-ai/henkel-po-caller.git
+cd henkel-po-caller
 
 # Install dependencies
 bun install
@@ -438,7 +438,7 @@ bun dev
 
 ```env
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/trinity_po?schema=public
+DATABASE_URL=postgresql://user:password@localhost:5432/henkel_po?schema=public
 
 # Redis
 REDIS_URL=redis://localhost:6379
@@ -465,7 +465,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ### Default Credentials
 
 ```
-Email: admin@trinity.com
+Email: admin@henkel.com
 Password: AdmiU99&$
 ```
 
@@ -631,7 +631,7 @@ When batches are processed, the override contact info will be used instead of th
 
 ## License
 
-Proprietary - Trinity Industries / HappyRobot AI
+Proprietary - Henkel / HappyRobot AI
 
 ---
 
@@ -640,4 +640,4 @@ Proprietary - Trinity Industries / HappyRobot AI
 For questions or issues:
 
 - Technical: fernando@happyrobot.ai
-- Repository: https://github.com/happyrobot-ai/trinity-po-caller
+- Repository: https://github.com/happyrobot-ai/henkel-po-caller

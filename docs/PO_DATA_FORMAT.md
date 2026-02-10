@@ -1,6 +1,6 @@
-# Trinity PO Data Format Specification
+# Henkel PO Data Format Specification
 
-This document describes the structure and content of the Purchase Order (PO) Excel files used by Trinity Railways.
+This document describes the structure and content of the Purchase Order (PO) Excel files used by Henkel.
 
 ## Source Files
 

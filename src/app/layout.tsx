@@ -16,10 +16,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trinity PO Caller",
+  title: "Henkel PO Caller",
   description: "AI-powered Purchase Order caller system",
   icons: {
-    icon: "/trinity/TRN-small-black.png",
+    icon: "/henkel/HNK-small-black.png",
   },
 };
 

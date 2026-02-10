@@ -1,4 +1,4 @@
-// Batch Pipeline - Trinity PO Caller Queue Visualization
+// Batch Pipeline - Henkel PO Caller Queue Visualization
 
 // Main Sankey Diagram
 export { SankeyDiagram } from "./sankey";

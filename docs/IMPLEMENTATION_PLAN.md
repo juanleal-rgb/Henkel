@@ -1,8 +1,8 @@
-# Trinity PO Caller - Implementation Plan
+# Henkel PO Caller - Implementation Plan
 
 ## Overview
 
-Build the Trinity PO Caller system incrementally, starting with a deployable skeleton on Railway and adding features progressively. Based on the existing `unir-demo` project patterns.
+Build the Henkel PO Caller system incrementally, starting with a deployable skeleton on Railway and adding features progressively. Based on the existing `unir-demo` project patterns.
 
 ---
 
@@ -12,8 +12,8 @@ Build the Trinity PO Caller system incrementally, starting with a deployable ske
 
 ### 0.1 Clone & Adapt Base Project
 
-- [x] Copy entire `unir-demo` folder contents to `TrinityRailways`
-- [x] Update `package.json` (name: "trinity-po-caller")
+- [x] Copy entire `unir-demo` folder contents to `Henkel`
+- [x] Update `package.json` (name: "henkel-po-caller")
 - [x] Clean up unneeded UNIR-specific code (leads, prospects, programs)
 - [x] Keep: Auth, Redis, Prisma setup, HappyRobot client, SSE, UI components
 
@@ -32,7 +32,7 @@ Build the Trinity PO Caller system incrementally, starting with a deployable ske
 
 ### 0.4 Verification
 
-- [x] App loads on Railway URL (https://trinity-po-caller-production.up.railway.app)
+- [x] App loads on Railway URL (https://henkel-po-caller-production.up.railway.app)
 - [x] `/api/health` returns OK
 - [x] Database connection works (schema pushed via `prisma db push`)
 - [x] Redis connection works
@@ -64,11 +64,11 @@ Build the Trinity PO Caller system incrementally, starting with a deployable ske
 
 ## Phase 2: Excel Parser [COMPLETE]
 
-**Goal**: Parse Trinity Excel files into typed data structures.
+**Goal**: Parse Henkel Excel files into typed data structures.
 
 ### Excel Format Reference
 
-Both Trinity files use identical 24-column format (see `docs/PO_DATA_FORMAT.md` for full spec):
+Both Henkel files use identical 24-column format (see `docs/PO_DATA_FORMAT.md` for full spec):
 
 ```
 Supplier #, Supplier Name           -> Supplier entity
@@ -474,10 +474,10 @@ Create a workflow in HappyRobot with the following structure:
    │    - purchase_orders: [{ id, poNumber, poLine, actionType, dueDate, recommendedDate, value }]
    │
    ▼
-🤖 AI Agent: "Trinity PO Caller"
+🤖 AI Agent: "Henkel PO Caller"
    │
    │  PROMPT:
-   │  You are calling on behalf of Trinity Rail to discuss purchase order changes.
+   │  You are calling on behalf of Henkel to discuss purchase order changes.
    │  Supplier: {{supplier.name}} ({{supplier.supplierNumber}})
    │  Phone: {{supplier.phone}}
    │
@@ -493,7 +493,7 @@ Create a workflow in HappyRobot with the following structure:
    │  Be professional, concise, and document their responses.
    │
    ├─── 🔧 Tool: send_update
-   │         Description: "Send a real-time status update to Trinity dashboard"
+   │         Description: "Send a real-time status update to Henkel dashboard"
    │         Parameters: { message: string, status: "INFO"|"SUCCESS"|"WARNING"|"ERROR" }
    │         └─→ 🌐 Webhook POST to {{callback_url}}
    │               Body: { event_type: "log", batch_id, message, status, source: "AGENT" }
@@ -543,7 +543,7 @@ HAPPYROBOT_WEBHOOK_URL=https://hooks.happyrobot.ai/webhook/xxxxx  # Incoming web
 HAPPYROBOT_X_API_KEY=<api-key-set-in-incoming-hook>              # For triggering
 HAPPYROBOT_API_KEY=hr_api_xxxxx                                   # Platform API key
 HAPPYROBOT_ORG_ID=org_xxxxx                                       # Organization ID
-HAPPYROBOT_ORG_SLUG=trinity                                       # For UI URLs
+HAPPYROBOT_ORG_SLUG=henkel                                       # For UI URLs
 HAPPYROBOT_WORKFLOW_ID=<workflow-id>                              # For UI URLs
 ```
 
@@ -1255,9 +1255,9 @@ Configure via Railway Dashboard:
 CRON_SECRET=<generate-secure-random-string>
 HAPPYROBOT_WEBHOOK_URL=https://hooks.happyrobot.ai/webhook/xxxxx
 HAPPYROBOT_X_API_KEY=<api-key-from-hr-incoming-hook>
-HAPPYROBOT_ORG_SLUG=trinity
+HAPPYROBOT_ORG_SLUG=henkel
 HAPPYROBOT_WORKFLOW_ID=<workflow-id>
-APP_URL=https://trinity-po-caller-production.up.railway.app
+APP_URL=https://henkel-po-caller-production.up.railway.app
 ```
 
 ---
@@ -1609,7 +1609,7 @@ type ActivityAction =
 - Credentials provider (email/password)
 - bcryptjs password hashing (cost factor 10)
 - Client-side route protection via AuthGuard component
-- Demo user seeded (`admin@trinity.com`)
+- Demo user seeded (`admin@henkel.com`)
 
 **Security Gaps Identified**:
 
@@ -1706,7 +1706,7 @@ Add Google as authentication provider for enterprise SSO.
 3. Application type: Web application
 4. Authorized redirect URIs:
    - `http://localhost:3000/api/auth/callback/google` (dev)
-   - `https://trinity-po-caller-production.up.railway.app/api/auth/callback/google` (prod)
+   - `https://henkel-po-caller-production.up.railway.app/api/auth/callback/google` (prod)
 
 **Environment Variables**:
 
@@ -1732,7 +1732,7 @@ export const authOptions: NextAuthOptions = {
           access_type: "offline",
           response_type: "code",
           // Restrict to specific domain (optional)
-          hd: "trinity.com", // Only allow @trinity.com emails
+          hd: "henkel.com", // Only allow @henkel.com emails
         },
       },
     }),
@@ -1796,7 +1796,7 @@ export const authOptions: NextAuthOptions = {
 - [ ] Update login page with Google button
 - [ ] Add Google icon component
 - [ ] Test OAuth flow end-to-end
-- [ ] Configure domain restriction (optional: `hd: "trinity.com"`)
+- [ ] Configure domain restriction (optional: `hd: "henkel.com"`)
 - [ ] Add Railway environment variables
 
 ---
@@ -1862,7 +1862,7 @@ export async function POST(request: Request) {
   const resetUrl = `${process.env.APP_URL}/reset-password?token=${token}`;
   await sendEmail({
     to: email,
-    subject: "Reset your Trinity password",
+    subject: "Reset your Henkel password",
     html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. Link expires in 1 hour.</p>`,
   });
 
@@ -1920,7 +1920,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail({ to, subject, html }: EmailOptions) {
   await resend.emails.send({
-    from: "Trinity Railways <noreply@trinity.com>",
+    from: "Henkel <noreply@henkel.com>",
     to,
     subject,
     html,
@@ -2214,9 +2214,9 @@ UPSTASH_REDIS_REST_TOKEN=<optional>
 
 ### Services Created
 
-1. **PostgreSQL** - `trinity-po-caller-db` [DONE]
-2. **Redis** - `trinity-po-caller-redis` [DONE]
-3. **App** - `trinity-po-caller-app` [DONE]
+1. **PostgreSQL** - `henkel-po-caller-db` [DONE]
+2. **Redis** - `henkel-po-caller-redis` [DONE]
+3. **App** - `henkel-po-caller-app` [DONE]
 
 ### Environment Variables
 
@@ -2224,8 +2224,8 @@ UPSTASH_REDIS_REST_TOKEN=<optional>
 DATABASE_URL=postgresql://...          [CONFIGURED]
 REDIS_URL=redis://...                  [CONFIGURED]
 NEXTAUTH_SECRET=<generated>            [CONFIGURED]
-NEXTAUTH_URL=https://trinity-po-caller-production.up.railway.app
-APP_URL=https://trinity-po-caller-production.up.railway.app
+NEXTAUTH_URL=https://henkel-po-caller-production.up.railway.app
+APP_URL=https://henkel-po-caller-production.up.railway.app
 HAPPYROBOT_WEBHOOK_CANCEL_URL=<from HR dashboard>
 HAPPYROBOT_WEBHOOK_RESCHEDULE_URL=<from HR dashboard>
 HAPPYROBOT_API_KEY=<from HR dashboard>

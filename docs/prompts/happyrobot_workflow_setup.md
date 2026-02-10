@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes how to set up the HappyRobot workflow for Trinity PO Caller.
+This document describes how to set up the HappyRobot workflow for Henkel PO Caller.
 
 ## Workflow Structure
 
@@ -29,7 +29,7 @@ This document describes how to set up the HappyRobot workflow for Trinity PO Cal
 
 1. In HappyRobot, create a new **Incoming Webhook** node
 2. Configure:
-   - **Name**: `Trinity PO Trigger`
+   - **Name**: `Henkel PO Trigger`
    - **API Key**: Generate and save as `HAPPYROBOT_X_API_KEY`
 3. Copy the webhook URL → Save as `HAPPYROBOT_WEBHOOK_URL`
 
@@ -60,7 +60,7 @@ This document describes how to set up the HappyRobot workflow for Trinity PO Cal
 }
 ```
 
-> **Note:** Callback URL is set as env var `TRINITY_CALLBACK_URL` in HappyRobot, not passed in payload.
+> **Note:** Callback URL is set as env var `HENKEL_CALLBACK_URL` in HappyRobot, not passed in payload.
 
 ## Step 2: Create AI Agent
 
@@ -101,7 +101,7 @@ Map these from the incoming webhook:
 {{first_po.total_value}} → first_po.total_value
 ```
 
-Plus the env var `TRINITY_CALLBACK_URL` for callback URL.
+Plus the env var `HENKEL_CALLBACK_URL` for callback URL.
 
 ## Step 3: Configure Tools
 
@@ -113,13 +113,13 @@ Plus the env var `TRINITY_CALLBACK_URL` for callback URL.
 
 - Type: Webhook
 - Method: GET
-- URL: `https://trinity-po-caller-production.up.railway.app/api/batches/{{batch_id}}/next-po`
-- Headers: `X-API-Key: {{TRINITY_WEBHOOK_SECRET}}`
+- URL: `https://henkel-po-caller-production.up.railway.app/api/batches/{{batch_id}}/next-po`
+- Headers: `X-API-Key: {{HENKEL_WEBHOOK_SECRET}}`
 
 **Agent Description**:
 
 ```
-Fetch the next purchase order to discuss from Trinity's system.
+Fetch the next purchase order to discuss from Henkel's system.
 Call this AFTER logging the outcome of the current PO with send_log.
 When you log with po_outcome "confirmed", the PO is marked as resolved server-side.
 Returns null when all POs have been discussed.
@@ -135,14 +135,14 @@ Returns:
 
 ### Tool 2: send_log
 
-**Purpose**: Real-time status updates to Trinity dashboard
+**Purpose**: Real-time status updates to Henkel dashboard
 
 **Configuration**:
 
 - Type: Webhook
 - Method: POST
-- URL: `{{TRINITY_CALLBACK_URL}}`
-- Headers: `X-API-Key: {{TRINITY_WEBHOOK_SECRET}}`
+- URL: `{{HENKEL_CALLBACK_URL}}`
+- Headers: `X-API-Key: {{HENKEL_WEBHOOK_SECRET}}`
 
 **Body Schema**:
 
@@ -160,7 +160,7 @@ Returns:
 **Agent Description**:
 
 ```
-Send a real-time status update to the Trinity dashboard.
+Send a real-time status update to the Henkel dashboard.
 Use this frequently throughout the call to log progress.
 
 Parameters:
@@ -174,13 +174,13 @@ Parameters:
 
 ### Tool 3: check_with_boss
 
-**Purpose**: Escalate issues to Trinity team via Slack
+**Purpose**: Escalate issues to Henkel team via Slack
 
 **Configuration**:
 
 - Type: Slack
 - Action: Send channel message
-- Channel: #trinity-po-escalations (or your choice)
+- Channel: #henkel-po-escalations (or your choice)
 
 **Message Template**:
 
@@ -195,7 +195,7 @@ Parameters:
 **Agent Description**:
 
 ```
-Escalate an issue to Trinity's team via Slack and WAIT for their response.
+Escalate an issue to Henkel's team via Slack and WAIT for their response.
 The tool sends a message and waits for a reply in the thread.
 Use when you need approval for alternative dates, additional costs, or unusual situations.
 
@@ -221,7 +221,7 @@ After the agent completes, add an **AI Generate** node to create the email body.
 **Prompt**:
 
 ```
-You are generating a confirmation email to send to a supplier after a phone call from Trinity Rail.
+You are generating a confirmation email to send to a supplier after a phone call from Henkel.
 
 Based on the call transcript below, create a professional email body.
 
@@ -240,7 +240,7 @@ EMAIL REQUIREMENTS:
    - Action confirmed (Cancellation / Push Out to [date] / Expedite to [date])
    - Include any special notes (rush fees, alternative dates agreed, etc.)
 4. End with contact information for questions
-5. Sign off as "Trinity Rail Procurement Team"
+5. Sign off as "Henkel Procurement Team"
 
 FORMAT:
 - Use plain text (no HTML)
@@ -250,7 +250,7 @@ FORMAT:
 EXAMPLE OUTPUT:
 Dear ABC Industries Team,
 
-Thank you for taking the time to speak with us today regarding your purchase orders with Trinity Rail.
+Thank you for taking the time to speak with us today regarding your purchase orders with Henkel.
 
 This email confirms the following actions discussed during our call:
 
@@ -258,12 +258,12 @@ This email confirms the following actions discussed during our call:
 • PO 4500123457, Line 1 - Delivery pushed out to March 15, 2026
 • PO 4500123458, Line 2 - Delivery expedited to March 1, 2026
 
-If you have any questions or need to discuss these changes further, please contact us at procurement@trinityrail.com.
+If you have any questions or need to discuss these changes further, please contact us at procurement@henkel.com.
 
 Thank you for your continued partnership.
 
 Best regards,
-Trinity Rail Procurement Team
+Henkel Procurement Team
 ```
 
 ---
@@ -277,13 +277,13 @@ Add a **Gmail** node to send the confirmation email:
 - Type: Gmail
 - Action: Send email
 - To: `{{supplier_email}}`
-- Subject: `Trinity Rail - PO Confirmation Summary`
+- Subject: `Henkel - PO Confirmation Summary`
 - Body: Use HTML template from `email_templates/po_confirmation.html`
   - Replace `{{email_body}}` with output from AI Generate node
 
 ## Environment Variables Required
 
-### In Trinity App (Railway):
+### In Henkel App (Railway):
 
 ```bash
 # HappyRobot Outbound (to trigger workflows)
@@ -294,23 +294,23 @@ HAPPYROBOT_X_API_KEY=<api-key-for-triggering>
 HAPPYROBOT_WEBHOOK_SECRET=<secret-for-validating-incoming-webhooks>
 
 # HappyRobot Dashboard URLs
-HAPPYROBOT_ORG_SLUG=trinity
+HAPPYROBOT_ORG_SLUG=henkel
 HAPPYROBOT_WORKFLOW_ID=<your-workflow-id>
 
 # App URL
-APP_URL=https://trinity-po-caller-production.up.railway.app
+APP_URL=https://henkel-po-caller-production.up.railway.app
 ```
 
 ### In HappyRobot Workflow:
 
 ```bash
-TRINITY_CALLBACK_URL=https://trinity-po-caller-production.up.railway.app/api/webhooks/happyrobot
-TRINITY_WEBHOOK_SECRET=<same-as-HAPPYROBOT_WEBHOOK_SECRET>
+HENKEL_CALLBACK_URL=https://henkel-po-caller-production.up.railway.app/api/webhooks/happyrobot
+HENKEL_WEBHOOK_SECRET=<same-as-HAPPYROBOT_WEBHOOK_SECRET>
 ```
 
 ## Testing
 
-1. **Test Incoming Webhook**: Click "Start Call" button in Trinity UI on a QUEUED batch
+1. **Test Incoming Webhook**: Click "Start Call" button in Henkel UI on a QUEUED batch
 2. **Test check_pending_POs**: Verify agent can fetch PO data from your API
 3. **Test send_log**: Verify logs appear in real-time in BatchModal
 4. **Test Full Flow**: Run a complete call and verify all status updates appear

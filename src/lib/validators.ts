@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // ============================================================================
-// Trinity PO Caller Enums (mirrors Prisma schema)
+// Henkel PO Caller Enums (mirrors Prisma schema)
 // ============================================================================
 
 export const POActionTypeSchema = z.enum(["CANCEL", "EXPEDITE", "PUSH_OUT"]);

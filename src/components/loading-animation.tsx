@@ -6,7 +6,7 @@ import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 
 // Import compound path SVGs for morphing (all shapes in single path)
 import HappyRobotCompound from "@public/happyrobot/HR-compound.svg";
-import TrinityCompound from "@public/trinity/TRN-compound.svg";
+import HenkelCompound from "@public/henkel/HNK-compound.svg";
 
 // Register plugin
 if (typeof window !== "undefined") {
@@ -16,16 +16,16 @@ if (typeof window !== "undefined") {
 export function LoadingAnimation() {
   const containerRef = useRef<HTMLDivElement>(null);
   const happyrobotRef = useRef<SVGSVGElement>(null);
-  const trinityRef = useRef<SVGSVGElement>(null);
+  const henkelRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!happyrobotRef.current || !trinityRef.current) return;
+    if (!happyrobotRef.current || !henkelRef.current) return;
 
     // Get the single compound path from each SVG
     const happyrobotPath = happyrobotRef.current.querySelector("path");
-    const trinityPath = trinityRef.current.querySelector("path");
+    const henkelPath = henkelRef.current.querySelector("path");
 
-    if (!happyrobotPath || !trinityPath) return;
+    if (!happyrobotPath || !henkelPath) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -39,16 +39,16 @@ export function LoadingAnimation() {
       tl
         // Pause at start (show HappyRobot)
         .to({}, { duration: 0.8 })
-        // Morph entire HappyRobot compound path to Trinity compound path
+        // Morph entire HappyRobot compound path to Henkel compound path
         .to(happyrobotPath, {
           morphSVG: {
-            shape: trinityPath,
+            shape: henkelPath,
             map: "complexity", // Match subpaths by point count
           },
           duration: 1.2,
           ease: "power2.inOut",
         })
-        // Hold at Trinity state
+        // Hold at Henkel state
         .to({}, { duration: 0.8 });
     }, containerRef);
 
@@ -60,14 +60,14 @@ export function LoadingAnimation() {
       ref={containerRef}
       className="relative flex h-full w-full items-center justify-center bg-black"
     >
-      {/* HappyRobot Compound Logo - will morph to Trinity */}
+      {/* HappyRobot Compound Logo - will morph to Henkel */}
       <div className="absolute left-1/2 top-1/2" style={{ transform: "translate(-50%, -50%)" }}>
         <HappyRobotCompound ref={happyrobotRef} width={100} height={79} />
       </div>
 
-      {/* Trinity Compound Logo - hidden, used as morph target */}
+      {/* Henkel Compound Logo - hidden, used as morph target */}
       <div className="pointer-events-none fixed opacity-0" aria-hidden="true">
-        <TrinityCompound ref={trinityRef} width={100} height={82} />
+        <HenkelCompound ref={henkelRef} width={100} height={82} />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-# Trinity PO Caller - Technical Specification
+# Henkel PO Caller - Technical Specification
 
 > AI-powered voice agent system for automating Purchase Order cancellations and reschedules with suppliers.
 
@@ -25,7 +25,7 @@
 
 ### Purpose
 
-Trinity PO Caller automates supplier communication for Purchase Order lifecycle management. When Trinity's internal systems identify POs that need action (cancellation, expedite, or push-out), this system:
+Henkel PO Caller automates supplier communication for Purchase Order lifecycle management. When Henkel's internal systems identify POs that need action (cancellation, expedite, or push-out), this system:
 
 1. Receives PO data via API
 2. Classifies each PO by required action
@@ -36,26 +36,26 @@ Trinity PO Caller automates supplier communication for Purchase Order lifecycle 
 
 ### Key Terminology
 
-| Term | Definition |
-|------|------------|
-| **PO (Purchase Order)** | A line item order from Trinity to a supplier |
-| **Cancellation** | Request to cancel a PO entirely |
-| **Expedite** | Request to deliver earlier than original due date |
-| **Push Out** | Request to delay delivery to a later date |
-| **Supplier Batch** | A group of POs for the same supplier, called together |
-| **Action Item** | Generic term for any PO requiring supplier contact |
+| Term                    | Definition                                            |
+| ----------------------- | ----------------------------------------------------- |
+| **PO (Purchase Order)** | A line item order from Henkel to a supplier           |
+| **Cancellation**        | Request to cancel a PO entirely                       |
+| **Expedite**            | Request to deliver earlier than original due date     |
+| **Push Out**            | Request to delay delivery to a later date             |
+| **Supplier Batch**      | A group of POs for the same supplier, called together |
+| **Action Item**         | Generic term for any PO requiring supplier contact    |
 
 ### Technology Stack
 
-| Component | Technology |
-|-----------|------------|
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript |
-| Database | PostgreSQL (Prisma ORM) |
-| Queue | Redis (ioredis) |
-| Voice Agent | HappyRobot AI |
-| Hosting | Railway |
-| Auth | NextAuth.js |
+| Component   | Technology              |
+| ----------- | ----------------------- |
+| Framework   | Next.js 14 (App Router) |
+| Language    | TypeScript              |
+| Database    | PostgreSQL (Prisma ORM) |
+| Queue       | Redis (ioredis)         |
+| Voice Agent | HappyRobot AI           |
+| Hosting     | Railway                 |
+| Auth        | NextAuth.js             |
 
 ---
 
@@ -65,13 +65,13 @@ Trinity PO Caller automates supplier communication for Purchase Order lifecycle 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              TRINITY PO CALLER                                   │
+│                              HENKEL PO CALLER                                   │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
 │  ┌──────────────┐     ┌─────────────────────────────────────────────────────┐   │
 │  │   External   │     │                   UPLOAD LAYER                      │   │
 │  │              │     │  ┌─────────────────────┐  ┌─────────────────────┐   │   │
-│  │ Trinity API  │────▶│  │ upload_cancellations│  │ upload_reschedules  │   │   │
+│  │ Henkel API  │────▶│  │ upload_cancellations│  │ upload_reschedules  │   │   │
 │  │  (POST /api) │     │  │                     │  │ (expedite/push-out) │   │   │
 │  │              │     │  └──────────┬──────────┘  └──────────┬──────────┘   │   │
 │  └──────────────┘     │             │                        │              │   │
@@ -114,7 +114,8 @@ Trinity PO Caller automates supplier communication for Purchase Order lifecycle 
 ### Layer Responsibilities
 
 #### 1. Upload Layer
-- Receives PO data from Trinity API
+
+- Receives PO data from Henkel API
 - Validates and transforms incoming data
 - Classifies POs by action type
 - Detects and flags conflicts for human review
@@ -122,18 +123,21 @@ Trinity PO Caller automates supplier communication for Purchase Order lifecycle 
 - Enqueues SupplierBatches to appropriate queues
 
 #### 2. Queue Layer
+
 - Redis-based priority queues (sorted sets)
 - Priority by total batch value (higher value = higher priority)
 - Separate queues for cancellations and reschedules
 - Supports batch processing and rate limiting
 
 #### 3. HappyRobot Layer
+
 - Triggers voice agent workflows
 - Passes full PO details to voice agent
 - Receives real-time status via webhooks
 - Handles different workflow types (cancel vs. reschedule)
 
 #### 4. Callback Handler
+
 - Processes HappyRobot webhook events
 - Determines if retry is needed based on outcome
 - Schedules callbacks with smart timing
@@ -176,106 +180,111 @@ Trinity PO Caller automates supplier communication for Purchase Order lifecycle 
 ### Core Entities
 
 #### Supplier
-Represents a vendor Trinity orders from.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | String | Unique identifier (CUID) |
-| supplierNumber | String | Trinity's supplier number (e.g., "80150") |
-| name | String | Supplier company name |
-| phone | String | Primary phone number for calls |
-| facility | String? | Associated facility code |
-| isActive | Boolean | Whether supplier is active |
-| createdAt | DateTime | Record creation timestamp |
-| updatedAt | DateTime | Last update timestamp |
+Represents a vendor Henkel orders from.
+
+| Field          | Type     | Description                              |
+| -------------- | -------- | ---------------------------------------- |
+| id             | String   | Unique identifier (CUID)                 |
+| supplierNumber | String   | Henkel's supplier number (e.g., "80150") |
+| name           | String   | Supplier company name                    |
+| phone          | String   | Primary phone number for calls           |
+| facility       | String?  | Associated facility code                 |
+| isActive       | Boolean  | Whether supplier is active               |
+| createdAt      | DateTime | Record creation timestamp                |
+| updatedAt      | DateTime | Last update timestamp                    |
 
 #### PurchaseOrder
+
 A single PO line item requiring action.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | String | Unique identifier (CUID) |
-| externalId | String? | Composite key: `{PO#}-{POLine}` |
-| supplierId | String | FK to Supplier |
-| batchId | String? | FK to SupplierBatch (assigned during grouping) |
-| actionType | Enum | CANCEL, EXPEDITE, PUSH_OUT |
-| status | Enum | PENDING, QUEUED, IN_PROGRESS, COMPLETED, FAILED, CONFLICT |
-| poNumber | String | PO number from Trinity |
-| poLine | Int | PO line number |
-| partNumber | String | Part identifier |
-| description | String? | Part description |
-| quantityOrdered | Decimal | Original quantity |
-| quantityReceived | Decimal | Already received |
-| quantityBalance | Decimal | Remaining to receive |
-| dueDate | DateTime | Original due date |
-| recommendedDate | DateTime? | New recommended date (for reschedules) |
-| expectedUnitCost | Decimal | Unit cost |
-| calculatedTotalValue | Decimal | Total value of line |
-| buyer | String? | Buyer code |
-| facility | String | Facility code |
-| warehouseId | String? | Warehouse identifier |
-| poEntryDate | DateTime? | When PO was created |
-| dispositionStatus | String? | Any special status |
-| rawData | Json | Original payload for reference |
-| createdAt | DateTime | Record creation |
-| updatedAt | DateTime | Last update |
+| Field                | Type      | Description                                               |
+| -------------------- | --------- | --------------------------------------------------------- |
+| id                   | String    | Unique identifier (CUID)                                  |
+| externalId           | String?   | Composite key: `{PO#}-{POLine}`                           |
+| supplierId           | String    | FK to Supplier                                            |
+| batchId              | String?   | FK to SupplierBatch (assigned during grouping)            |
+| actionType           | Enum      | CANCEL, EXPEDITE, PUSH_OUT                                |
+| status               | Enum      | PENDING, QUEUED, IN_PROGRESS, COMPLETED, FAILED, CONFLICT |
+| poNumber             | String    | PO number from Henkel                                     |
+| poLine               | Int       | PO line number                                            |
+| partNumber           | String    | Part identifier                                           |
+| description          | String?   | Part description                                          |
+| quantityOrdered      | Decimal   | Original quantity                                         |
+| quantityReceived     | Decimal   | Already received                                          |
+| quantityBalance      | Decimal   | Remaining to receive                                      |
+| dueDate              | DateTime  | Original due date                                         |
+| recommendedDate      | DateTime? | New recommended date (for reschedules)                    |
+| expectedUnitCost     | Decimal   | Unit cost                                                 |
+| calculatedTotalValue | Decimal   | Total value of line                                       |
+| buyer                | String?   | Buyer code                                                |
+| facility             | String    | Facility code                                             |
+| warehouseId          | String?   | Warehouse identifier                                      |
+| poEntryDate          | DateTime? | When PO was created                                       |
+| dispositionStatus    | String?   | Any special status                                        |
+| rawData              | Json      | Original payload for reference                            |
+| createdAt            | DateTime  | Record creation                                           |
+| updatedAt            | DateTime  | Last update                                               |
 
 #### SupplierBatch
+
 Groups POs for the same supplier into a single call.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | String | Unique identifier (CUID) |
-| supplierId | String | FK to Supplier |
-| status | Enum | PENDING, QUEUED, IN_PROGRESS, COMPLETED, FAILED, PARTIAL |
-| actionTypes | String[] | Actions in this batch (CANCEL, EXPEDITE, PUSH_OUT) |
-| totalValue | Decimal | Sum of all PO values (for priority) |
-| poCount | Int | Number of POs in batch |
-| priority | Int | Calculated priority score |
-| attemptCount | Int | Number of call attempts |
-| maxAttempts | Int | Maximum retry attempts (default: 5) |
-| scheduledFor | DateTime? | Next scheduled call time |
-| happyRobotRunId | String? | Current HappyRobot run ID |
-| lastOutcome | String? | Last call outcome |
-| lastOutcomeReason | String? | Details of last outcome |
-| createdAt | DateTime | Record creation |
-| updatedAt | DateTime | Last update |
-| completedAt | DateTime? | When all POs resolved |
+| Field             | Type      | Description                                              |
+| ----------------- | --------- | -------------------------------------------------------- |
+| id                | String    | Unique identifier (CUID)                                 |
+| supplierId        | String    | FK to Supplier                                           |
+| status            | Enum      | PENDING, QUEUED, IN_PROGRESS, COMPLETED, FAILED, PARTIAL |
+| actionTypes       | String[]  | Actions in this batch (CANCEL, EXPEDITE, PUSH_OUT)       |
+| totalValue        | Decimal   | Sum of all PO values (for priority)                      |
+| poCount           | Int       | Number of POs in batch                                   |
+| priority          | Int       | Calculated priority score                                |
+| attemptCount      | Int       | Number of call attempts                                  |
+| maxAttempts       | Int       | Maximum retry attempts (default: 5)                      |
+| scheduledFor      | DateTime? | Next scheduled call time                                 |
+| happyRobotRunId   | String?   | Current HappyRobot run ID                                |
+| lastOutcome       | String?   | Last call outcome                                        |
+| lastOutcomeReason | String?   | Details of last outcome                                  |
+| createdAt         | DateTime  | Record creation                                          |
+| updatedAt         | DateTime  | Last update                                              |
+| completedAt       | DateTime? | When all POs resolved                                    |
 
 #### AgentRun
+
 Tracks each HappyRobot call attempt.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | String | Unique identifier (CUID) |
-| batchId | String | FK to SupplierBatch |
-| externalId | String? | HappyRobot run_id |
-| status | Enum | PENDING, SCHEDULED, IN_PROGRESS, COMPLETED, FAILED, NO_ANSWER |
-| outcome | String? | Call outcome code |
-| outcomeReason | String? | Additional context |
-| externalUrl | String? | Link to HappyRobot platform |
-| scheduledFor | DateTime? | When call is scheduled |
-| startedAt | DateTime? | Call start time |
-| endedAt | DateTime? | Call end time |
-| duration | Int? | Call duration in seconds |
-| attempt | Int | Attempt number (1-5) |
-| metadata | Json? | Additional call data |
-| createdAt | DateTime | Record creation |
-| updatedAt | DateTime | Last update |
+| Field         | Type      | Description                                                   |
+| ------------- | --------- | ------------------------------------------------------------- |
+| id            | String    | Unique identifier (CUID)                                      |
+| batchId       | String    | FK to SupplierBatch                                           |
+| externalId    | String?   | HappyRobot run_id                                             |
+| status        | Enum      | PENDING, SCHEDULED, IN_PROGRESS, COMPLETED, FAILED, NO_ANSWER |
+| outcome       | String?   | Call outcome code                                             |
+| outcomeReason | String?   | Additional context                                            |
+| externalUrl   | String?   | Link to HappyRobot platform                                   |
+| scheduledFor  | DateTime? | When call is scheduled                                        |
+| startedAt     | DateTime? | Call start time                                               |
+| endedAt       | DateTime? | Call end time                                                 |
+| duration      | Int?      | Call duration in seconds                                      |
+| attempt       | Int       | Attempt number (1-5)                                          |
+| metadata      | Json?     | Additional call data                                          |
+| createdAt     | DateTime  | Record creation                                               |
+| updatedAt     | DateTime  | Last update                                                   |
 
 #### ConflictQueue
+
 POs flagged for human review.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| id | String | Unique identifier |
-| purchaseOrderId | String | FK to PurchaseOrder |
-| conflictType | String | Type of conflict detected |
-| conflictDetails | Json | Details for resolution |
-| resolvedAt | DateTime? | When resolved |
-| resolvedBy | String? | User who resolved |
-| resolution | String? | How it was resolved |
-| createdAt | DateTime | Record creation |
+| Field           | Type      | Description               |
+| --------------- | --------- | ------------------------- |
+| id              | String    | Unique identifier         |
+| purchaseOrderId | String    | FK to PurchaseOrder       |
+| conflictType    | String    | Type of conflict detected |
+| conflictDetails | Json      | Details for resolution    |
+| resolvedAt      | DateTime? | When resolved             |
+| resolvedBy      | String?   | User who resolved         |
+| resolution      | String?   | How it was resolved       |
+| createdAt       | DateTime  | Record creation           |
 
 ---
 
@@ -288,6 +297,7 @@ POs flagged for human review.
 Receives PO data identified for cancellation.
 
 **Request Body:**
+
 ```typescript
 interface CancellationUploadPayload {
   pos: Array<{
@@ -295,13 +305,13 @@ interface CancellationUploadPayload {
     poLine: number;
     supplierNumber: string;
     supplierName: string;
-    supplierPhone: string;     // REQUIRED
+    supplierPhone: string; // REQUIRED
     partNumber: string;
     description?: string;
     quantityOrdered: number;
     quantityReceived: number;
     quantityBalance: number;
-    dueDate: string;           // ISO date
+    dueDate: string; // ISO date
     expectedUnitCost: number;
     calculatedTotalValue: number;
     buyer?: string;
@@ -311,7 +321,7 @@ interface CancellationUploadPayload {
     dispositionStatus?: string;
   }>;
   metadata?: {
-    uploadSource?: string;     // "api", "manual", "batch"
+    uploadSource?: string; // "api", "manual", "batch"
     uploadedBy?: string;
     batchId?: string;
   };
@@ -319,15 +329,16 @@ interface CancellationUploadPayload {
 ```
 
 **Response:**
+
 ```typescript
 interface UploadResponse {
   success: boolean;
   data: {
-    received: number;          // Total POs received
-    queued: number;            // POs queued for processing
-    conflicts: number;         // POs flagged for review
-    invalid: number;           // POs rejected (validation failed)
-    batchesCreated: number;    // Supplier batches created
+    received: number; // Total POs received
+    queued: number; // POs queued for processing
+    conflicts: number; // POs flagged for review
+    invalid: number; // POs rejected (validation failed)
+    batchesCreated: number; // Supplier batches created
   };
   conflicts?: Array<{
     poNumber: string;
@@ -347,6 +358,7 @@ interface UploadResponse {
 Receives PO data requiring date changes (expedite or push-out).
 
 **Request Body:**
+
 ```typescript
 interface RescheduleUploadPayload {
   pos: Array<{
@@ -354,14 +366,14 @@ interface RescheduleUploadPayload {
     poLine: number;
     supplierNumber: string;
     supplierName: string;
-    supplierPhone: string;     // REQUIRED
+    supplierPhone: string; // REQUIRED
     partNumber: string;
     description?: string;
     quantityOrdered: number;
     quantityReceived: number;
     quantityBalance: number;
-    dueDate: string;           // ISO date
-    recommendedDate: string;   // ISO date - NEW date
+    dueDate: string; // ISO date
+    recommendedDate: string; // ISO date - NEW date
     expectedUnitCost: number;
     calculatedTotalValue: number;
     buyer?: string;
@@ -385,6 +397,7 @@ interface RescheduleUploadPayload {
 List all supplier batches with filters.
 
 **Query Parameters:**
+
 - `status`: Filter by status (PENDING, QUEUED, IN_PROGRESS, COMPLETED, FAILED)
 - `supplierId`: Filter by supplier
 - `actionType`: Filter by action type
@@ -508,7 +521,7 @@ Receives callbacks from HappyRobot.
 function classifyPO(po: IncomingPO, isInCancelList: boolean): ActionType | null {
   // Rule 1: Explicit cancellation
   if (isInCancelList || po.cancelFlag === true) {
-    return 'CANCEL';
+    return "CANCEL";
   }
 
   // Rule 2: No recommended date = no reschedule needed
@@ -526,11 +539,11 @@ function classifyPO(po: IncomingPO, isInCancelList: boolean): ActionType | null 
 
   // Rule 4: Recommended earlier = Expedite
   if (recommendedDate < dueDate) {
-    return 'EXPEDITE';
+    return "EXPEDITE";
   }
 
   // Rule 5: Recommended later = Push Out
-  return 'PUSH_OUT';
+  return "PUSH_OUT";
 }
 ```
 
@@ -549,11 +562,11 @@ function detectConflict(po: PurchaseOrder, existingPO?: PurchaseOrder): Conflict
   // Same PO with different action
   if (existingPO.actionType !== po.actionType) {
     return {
-      type: 'DUPLICATE_DIFFERENT_ACTION',
+      type: "DUPLICATE_DIFFERENT_ACTION",
       details: {
         existing: existingPO.actionType,
         incoming: po.actionType,
-      }
+      },
     };
   }
 
@@ -593,8 +606,8 @@ Configurable maximum POs per batch (per call):
 
 ```typescript
 const BATCH_CONFIG = {
-  maxPOsPerBatch: 10,        // Default, configurable
-  maxValuePerBatch: 100000,  // Optional value cap
+  maxPOsPerBatch: 10, // Default, configurable
+  maxValuePerBatch: 100000, // Optional value cap
 };
 ```
 
@@ -605,16 +618,14 @@ If a supplier has more POs than the limit, multiple batches are created.
 ```typescript
 // Enqueue a batch
 async function enqueueBatch(batch: SupplierBatch): Promise<void> {
-  const queue = batch.actionTypes.includes('CANCEL')
-    ? 'queue:cancellations'
-    : 'queue:reschedules';
+  const queue = batch.actionTypes.includes("CANCEL") ? "queue:cancellations" : "queue:reschedules";
 
   const priority = calculatePriority(batch);
   await redis.zadd(queue, priority, batch.id);
 
   await prisma.supplierBatch.update({
     where: { id: batch.id },
-    data: { status: 'QUEUED' }
+    data: { status: "QUEUED" },
   });
 }
 
@@ -626,7 +637,7 @@ async function dequeueBatch(queueName: string): Promise<string | null> {
 
 // Schedule callback
 async function scheduleCallback(batchId: string, scheduledFor: Date): Promise<void> {
-  await redis.zadd('queue:callbacks', scheduledFor.getTime(), batchId);
+  await redis.zadd("queue:callbacks", scheduledFor.getTime(), batchId);
 }
 ```
 
@@ -656,12 +667,12 @@ interface HappyRobotPayload {
   pos: Array<{
     poNumber: string;
     poLine: number;
-    actionType: 'CANCEL' | 'EXPEDITE' | 'PUSH_OUT';
+    actionType: "CANCEL" | "EXPEDITE" | "PUSH_OUT";
     partNumber: string;
     description: string;
     quantityBalance: number;
     currentDueDate: string;
-    newDate?: string;          // For reschedules
+    newDate?: string; // For reschedules
     value: number;
   }>;
   batchId: string;
@@ -674,11 +685,11 @@ interface HappyRobotPayload {
 
 async function triggerHappyRobotCall(batch: SupplierBatch): Promise<string[]> {
   const supplier = await prisma.supplier.findUnique({
-    where: { id: batch.supplierId }
+    where: { id: batch.supplierId },
   });
 
   const pos = await prisma.purchaseOrder.findMany({
-    where: { batchId: batch.id }
+    where: { batchId: batch.id },
   });
 
   const payload: HappyRobotPayload = {
@@ -688,12 +699,12 @@ async function triggerHappyRobotCall(batch: SupplierBatch): Promise<string[]> {
       number: supplier.supplierNumber,
       phone: supplier.phone,
     },
-    pos: pos.map(po => ({
+    pos: pos.map((po) => ({
       poNumber: po.poNumber,
       poLine: po.poLine,
       actionType: po.actionType,
       partNumber: po.partNumber,
-      description: po.description || '',
+      description: po.description || "",
       quantityBalance: po.quantityBalance,
       currentDueDate: po.dueDate.toISOString(),
       newDate: po.recommendedDate?.toISOString(),
@@ -701,20 +712,22 @@ async function triggerHappyRobotCall(batch: SupplierBatch): Promise<string[]> {
     })),
     batchId: batch.id,
     attemptNumber: batch.attemptCount + 1,
-    context: batch.lastOutcome ? {
-      previousOutcome: batch.lastOutcome,
-      previousReason: batch.lastOutcomeReason,
-    } : undefined,
+    context: batch.lastOutcome
+      ? {
+          previousOutcome: batch.lastOutcome,
+          previousReason: batch.lastOutcomeReason,
+        }
+      : undefined,
   };
 
   // Determine workflow based on action types
-  const webhookUrl = batch.actionTypes.includes('CANCEL')
+  const webhookUrl = batch.actionTypes.includes("CANCEL")
     ? process.env.HAPPYROBOT_WEBHOOK_CANCEL_URL
     : process.env.HAPPYROBOT_WEBHOOK_RESCHEDULE_URL;
 
   const response = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 
@@ -728,7 +741,7 @@ async function triggerHappyRobotCall(batch: SupplierBatch): Promise<string[]> {
 ```typescript
 interface HappyRobotWebhook {
   run_id: string;
-  event_type: 'started' | 'completed' | 'failed' | 'log';
+  event_type: "started" | "completed" | "failed" | "log";
   timestamp: string;
   data: {
     status?: string;
@@ -749,7 +762,7 @@ interface HappyRobotWebhook {
 async function handleHappyRobotWebhook(webhook: HappyRobotWebhook): Promise<void> {
   const agentRun = await prisma.agentRun.findUnique({
     where: { externalId: webhook.run_id },
-    include: { batch: true }
+    include: { batch: true },
   });
 
   if (!agentRun) {
@@ -758,16 +771,16 @@ async function handleHappyRobotWebhook(webhook: HappyRobotWebhook): Promise<void
   }
 
   switch (webhook.event_type) {
-    case 'started':
+    case "started":
       await handleCallStarted(agentRun, webhook);
       break;
-    case 'completed':
+    case "completed":
       await handleCallCompleted(agentRun, webhook);
       break;
-    case 'failed':
+    case "failed":
       await handleCallFailed(agentRun, webhook);
       break;
-    case 'log':
+    case "log":
       await handleCallLog(agentRun, webhook);
       break;
   }
@@ -792,17 +805,17 @@ Success criteria are workflow-defined and communicated via webhook `outcome` fie
 
 A callback/retry is scheduled when:
 
-| Outcome | Retry? | Reason |
-|---------|--------|--------|
-| `no_answer` | Yes | No one picked up |
-| `voicemail` | Yes | Went to voicemail |
-| `callback_requested` | Yes | Person asked to call back |
-| `busy` | Yes | Line was busy |
-| `not_available` | Yes | Contact not available |
-| `partial_success` | Yes | Some POs confirmed, others need follow-up |
-| `success` | No | All POs confirmed |
-| `rejected` | No | Supplier explicitly refused |
-| `wrong_number` | No | Phone number is incorrect (escalate) |
+| Outcome              | Retry? | Reason                                    |
+| -------------------- | ------ | ----------------------------------------- |
+| `no_answer`          | Yes    | No one picked up                          |
+| `voicemail`          | Yes    | Went to voicemail                         |
+| `callback_requested` | Yes    | Person asked to call back                 |
+| `busy`               | Yes    | Line was busy                             |
+| `not_available`      | Yes    | Contact not available                     |
+| `partial_success`    | Yes    | Some POs confirmed, others need follow-up |
+| `success`            | No     | All POs confirmed                         |
+| `rejected`           | No     | Supplier explicitly refused               |
+| `wrong_number`       | No     | Phone number is incorrect (escalate)      |
 
 ### Smart Retry Timing (Business Hours Rotation)
 
@@ -810,21 +823,21 @@ A callback/retry is scheduled when:
 interface RetrySchedule {
   attempt: number;
   delayHours: number;
-  preferredTimeSlot: 'morning' | 'afternoon' | 'any';
+  preferredTimeSlot: "morning" | "afternoon" | "any";
 }
 
 const RETRY_SCHEDULE: RetrySchedule[] = [
-  { attempt: 1, delayHours: 0, preferredTimeSlot: 'any' },      // Immediate
-  { attempt: 2, delayHours: 2, preferredTimeSlot: 'afternoon' }, // 2 hours, prefer afternoon
-  { attempt: 3, delayHours: 4, preferredTimeSlot: 'morning' },   // 4 hours, prefer next morning
-  { attempt: 4, delayHours: 24, preferredTimeSlot: 'morning' },  // Next day morning
-  { attempt: 5, delayHours: 24, preferredTimeSlot: 'afternoon' }, // Next day afternoon
+  { attempt: 1, delayHours: 0, preferredTimeSlot: "any" }, // Immediate
+  { attempt: 2, delayHours: 2, preferredTimeSlot: "afternoon" }, // 2 hours, prefer afternoon
+  { attempt: 3, delayHours: 4, preferredTimeSlot: "morning" }, // 4 hours, prefer next morning
+  { attempt: 4, delayHours: 24, preferredTimeSlot: "morning" }, // Next day morning
+  { attempt: 5, delayHours: 24, preferredTimeSlot: "afternoon" }, // Next day afternoon
 ];
 
 const BUSINESS_HOURS = {
-  start: 8,  // 8 AM
-  end: 17,   // 5 PM
-  timezone: 'America/Chicago', // Supplier timezone or default
+  start: 8, // 8 AM
+  end: 17, // 5 PM
+  timezone: "America/Chicago", // Supplier timezone or default
 };
 
 function calculateNextCallTime(attempt: number): Date {
@@ -845,7 +858,7 @@ function adjustToBusinessHours(date: Date, preferredSlot: string): Date {
   // If outside business hours, move to next business day
   if (hour < BUSINESS_HOURS.start || hour >= BUSINESS_HOURS.end) {
     date.setDate(date.getDate() + 1);
-    date.setHours(preferredSlot === 'afternoon' ? 13 : 9, 0, 0, 0);
+    date.setHours(preferredSlot === "afternoon" ? 13 : 9, 0, 0, 0);
   }
 
   // Skip weekends
@@ -871,28 +884,28 @@ async function handleMaxRetriesExhausted(batch: SupplierBatch): Promise<void> {
     prisma.supplierBatch.update({
       where: { id: batch.id },
       data: {
-        status: 'FAILED',
+        status: "FAILED",
         completedAt: new Date(),
-      }
+      },
     }),
     prisma.purchaseOrder.updateMany({
       where: { batchId: batch.id },
-      data: { status: 'FAILED' }
-    })
+      data: { status: "FAILED" },
+    }),
   ]);
 
   // Log for reporting
   await prisma.activityLog.create({
     data: {
-      entityType: 'BATCH',
+      entityType: "BATCH",
       entityId: batch.id,
-      action: 'MAX_RETRIES_EXHAUSTED',
+      action: "MAX_RETRIES_EXHAUSTED",
       details: {
         attempts: batch.attemptCount,
         lastOutcome: batch.lastOutcome,
         posAffected: batch.poCount,
-      }
-    }
+      },
+    },
   });
 }
 ```
@@ -909,7 +922,7 @@ Main dashboard showing queue status and today's metrics.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Trinity PO Caller Dashboard                          [User ▼] │
+│  Henkel PO Caller Dashboard                          [User ▼] │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐│
@@ -1070,7 +1083,7 @@ Main dashboard showing queue status and today's metrics.
 │  │ Jan 7, 2:00pm  │ Callback requested by supplier            ││
 │  │ Jan 7, 9:00am  │ No answer                                 ││
 │  │ Jan 7, 8:45am  │ Queued for processing                     ││
-│  │ Jan 7, 8:30am  │ Received from Trinity API                 ││
+│  │ Jan 7, 8:30am  │ Received from Henkel API                 ││
 │  └────────────────────────────────────────────────────────────┘│
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -1118,7 +1131,7 @@ Main dashboard showing queue status and today's metrics.
 
 ```bash
 # Database
-DATABASE_URL="postgresql://user:pass@host:5432/trinity_po_caller"
+DATABASE_URL="postgresql://user:pass@host:5432/henkel_po_caller"
 
 # Redis
 REDIS_URL="redis://localhost:6379"
@@ -1130,9 +1143,9 @@ HAPPYROBOT_API_KEY="hr_api_xxxxx"
 HAPPYROBOT_ORG_ID="org_xxxxx"
 
 # App
-APP_URL="https://trinity-po-caller.railway.app"
+APP_URL="https://henkel-po-caller.railway.app"
 NEXTAUTH_SECRET="xxxxx"
-NEXTAUTH_URL="https://trinity-po-caller.railway.app"
+NEXTAUTH_URL="https://henkel-po-caller.railway.app"
 
 # Queue Processing
 QUEUE_POLL_INTERVAL_MS="5000"
@@ -1144,19 +1157,19 @@ MAX_CONCURRENT_CALLS="5"
 ```typescript
 interface SystemConfig {
   // Batching
-  maxPOsPerBatch: number;          // Default: 10
+  maxPOsPerBatch: number; // Default: 10
 
   // Retry
-  maxRetryAttempts: number;        // Default: 5
+  maxRetryAttempts: number; // Default: 5
 
   // Business Hours
-  businessHoursStart: number;      // Default: 8 (8 AM)
-  businessHoursEnd: number;        // Default: 17 (5 PM)
-  businessTimezone: string;        // Default: "America/Chicago"
+  businessHoursStart: number; // Default: 8 (8 AM)
+  businessHoursEnd: number; // Default: 17 (5 PM)
+  businessTimezone: string; // Default: "America/Chicago"
 
   // Queue
-  queuePollIntervalMs: number;     // Default: 5000
-  maxConcurrentCalls: number;      // Default: 5
+  queuePollIntervalMs: number; // Default: 5000
+  maxConcurrentCalls: number; // Default: 5
 }
 ```
 
@@ -1447,6 +1460,7 @@ model POSystemConfig {
 **Goal**: Basic data model, API upload, and database setup.
 
 **Tasks**:
+
 - [ ] Set up project structure (clone/adapt from unir-demo)
 - [ ] Create Prisma schema for new entities
 - [ ] Implement Supplier, PurchaseOrder models
@@ -1456,6 +1470,7 @@ model POSystemConfig {
 - [ ] Basic conflict detection
 
 **Deliverables**:
+
 - Working API that accepts PO uploads
 - Data stored correctly in PostgreSQL
 - POs classified by action type
@@ -1465,6 +1480,7 @@ model POSystemConfig {
 **Goal**: Redis-based queue system with priority ordering.
 
 **Tasks**:
+
 - [ ] Set up Redis connection
 - [ ] Implement SupplierBatch grouping logic
 - [ ] Create queue operations (enqueue, dequeue, schedule)
@@ -1473,6 +1489,7 @@ model POSystemConfig {
 - [ ] Build queue monitoring endpoints
 
 **Deliverables**:
+
 - POs grouped into supplier batches
 - Batches queued by priority (value)
 - Queue status endpoints working
@@ -1482,6 +1499,7 @@ model POSystemConfig {
 **Goal**: Connect to HappyRobot for making calls.
 
 **Tasks**:
+
 - [ ] Implement workflow triggering
 - [ ] Create webhook handler endpoint
 - [ ] Handle all webhook event types
@@ -1489,6 +1507,7 @@ model POSystemConfig {
 - [ ] Create AgentRun tracking
 
 **Deliverables**:
+
 - Batches trigger HappyRobot calls
 - Webhook updates received and processed
 - Call status tracked in database
@@ -1498,6 +1517,7 @@ model POSystemConfig {
 **Goal**: Smart retry with business hours scheduling.
 
 **Tasks**:
+
 - [ ] Implement retry schedule logic
 - [ ] Create business hours calculation
 - [ ] Build callback queue processing
@@ -1505,6 +1525,7 @@ model POSystemConfig {
 - [ ] Create failure reporting
 
 **Deliverables**:
+
 - Failed calls automatically retry
 - Retries scheduled during business hours
 - Max retry exhaustion handled
@@ -1514,6 +1535,7 @@ model POSystemConfig {
 **Goal**: Full dashboard for monitoring and management.
 
 **Tasks**:
+
 - [ ] Queue overview page
 - [ ] Suppliers list and detail pages
 - [ ] Batch detail pages
@@ -1522,6 +1544,7 @@ model POSystemConfig {
 - [ ] Real-time status updates
 
 **Deliverables**:
+
 - Complete dashboard UI
 - All views functional
 - Real-time updates working
@@ -1531,6 +1554,7 @@ model POSystemConfig {
 **Goal**: Production-ready deployment.
 
 **Tasks**:
+
 - [ ] Error handling improvements
 - [ ] Logging and monitoring
 - [ ] Performance optimization
@@ -1539,6 +1563,7 @@ model POSystemConfig {
 - [ ] Railway deployment configuration
 
 **Deliverables**:
+
 - Production deployment on Railway
 - Monitoring in place
 - Documentation complete
@@ -1550,6 +1575,7 @@ model POSystemConfig {
 ### Sample API Payloads
 
 #### Upload Cancellation Request
+
 ```json
 {
   "pos": [
@@ -1565,8 +1591,8 @@ model POSystemConfig {
       "quantityReceived": 0.0,
       "quantityBalance": 1.0,
       "dueDate": "2020-06-12",
-      "expectedUnitCost": 0.10,
-      "calculatedTotalValue": 0.10,
+      "expectedUnitCost": 0.1,
+      "calculatedTotalValue": 0.1,
       "buyer": "BFP",
       "facility": "SG",
       "warehouseId": "SGQ"
@@ -1574,12 +1600,13 @@ model POSystemConfig {
   ],
   "metadata": {
     "uploadSource": "api",
-    "batchId": "trinity_batch_001"
+    "batchId": "henkel_batch_001"
   }
 }
 ```
 
 #### Upload Reschedule Request
+
 ```json
 {
   "pos": [
@@ -1596,7 +1623,7 @@ model POSystemConfig {
       "quantityBalance": 1.0,
       "dueDate": "2021-06-30",
       "recommendedDate": "2026-01-27",
-      "expectedUnitCost": 2.00850,
+      "expectedUnitCost": 2.0085,
       "calculatedTotalValue": 2.0085,
       "buyer": "BFP",
       "facility": "SG"
@@ -1608,6 +1635,7 @@ model POSystemConfig {
 ### HappyRobot Webhook Examples
 
 #### Call Started
+
 ```json
 {
   "run_id": "run_abc123",
@@ -1620,6 +1648,7 @@ model POSystemConfig {
 ```
 
 #### Call Completed - Success
+
 ```json
 {
   "run_id": "run_abc123",
@@ -1630,14 +1659,15 @@ model POSystemConfig {
     "outcome": "success",
     "duration": 312,
     "poResults": [
-      {"poNumber": "531203", "poLine": 1, "confirmed": true},
-      {"poNumber": "914446", "poLine": 12, "confirmed": true}
+      { "poNumber": "531203", "poLine": 1, "confirmed": true },
+      { "poNumber": "914446", "poLine": 12, "confirmed": true }
     ]
   }
 }
 ```
 
 #### Call Completed - Callback Requested
+
 ```json
 {
   "run_id": "run_abc123",
@@ -1656,5 +1686,5 @@ model POSystemConfig {
 
 ---
 
-*Last updated: January 2026*
-*Version: 1.0*
+_Last updated: January 2026_
+_Version: 1.0_

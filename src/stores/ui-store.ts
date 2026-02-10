@@ -139,7 +139,7 @@ export const useUIStore = create<UIState>()(
         })),
     }),
     {
-      name: "trinity-ui-storage",
+      name: "henkel-ui-storage",
       // Only persist active uploads that are still processing
       partialize: (state) => ({
         activeUploads: state.activeUploads.filter(

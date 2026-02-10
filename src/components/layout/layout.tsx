@@ -35,7 +35,7 @@ import { useToast, Toaster } from "@/components/ui/toaster";
 const SIDEBAR_COLLAPSED = 72;
 const SIDEBAR_EXPANDED = 200;
 
-// Navigation items for Trinity PO Caller
+// Navigation items for Henkel PO Caller
 const navItems: {
   href: string;
   icon: LucideIcon;
@@ -758,11 +758,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex shrink-0 items-center justify-center">
               <Image
                 src={
-                  theme === "light"
-                    ? "/trinity/TRN-small-black.png"
-                    : "/trinity/TRN-small-white.png"
+                  theme === "light" ? "/henkel/HNK-small-black.png" : "/henkel/HNK-small-white.png"
                 }
-                alt="Trinity"
+                alt="Henkel"
                 width={32}
                 height={32}
                 className="object-contain"
@@ -775,10 +773,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Image
                 src={
                   theme === "light"
-                    ? "/trinity/TRN-expanded-black.png"
-                    : "/trinity/TRN-expanded-white.png"
+                    ? "/henkel/HNK-expanded-black.png"
+                    : "/henkel/HNK-expanded-white.png"
                 }
-                alt="Trinity Industries"
+                alt="Henkel Industries"
                 width={140}
                 height={32}
                 className="object-contain"

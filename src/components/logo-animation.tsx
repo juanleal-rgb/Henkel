@@ -6,7 +6,7 @@ import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 
 // Import compound path SVGs for morphing (all shapes in single path)
 import HappyRobotCompound from "@public/happyrobot/HR-compound.svg";
-import TrinityCompound from "@public/trinity/TRN-compound.svg";
+import HenkelCompound from "@public/henkel/HNK-compound.svg";
 
 // Register plugin
 if (typeof window !== "undefined") {
@@ -20,18 +20,18 @@ interface LogoAnimationProps {
 export function LogoAnimation({ onComplete }: LogoAnimationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const happyrobotRef = useRef<SVGSVGElement>(null);
-  const trinityRef = useRef<SVGSVGElement>(null);
+  const henkelRef = useRef<SVGSVGElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!happyrobotRef.current || !trinityRef.current) return;
+    if (!happyrobotRef.current || !henkelRef.current) return;
 
     // Get the single compound path from each SVG
     const happyrobotPath = happyrobotRef.current.querySelector("path");
-    const trinityPath = trinityRef.current.querySelector("path");
+    const henkelPath = henkelRef.current.querySelector("path");
 
-    if (!happyrobotPath || !trinityPath) return;
+    if (!happyrobotPath || !henkelPath) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -42,7 +42,7 @@ export function LogoAnimation({ onComplete }: LogoAnimationProps) {
 
       // Initial state
       gsap.set(happyrobotRef.current, { opacity: 0, scale: 0.8 });
-      gsap.set(trinityRef.current, { opacity: 0 });
+      gsap.set(henkelRef.current, { opacity: 0 });
       gsap.set(textRef.current, { y: 30, opacity: 0 });
       gsap.set(glowRef.current, { scale: 0, opacity: 0 });
 
@@ -63,12 +63,12 @@ export function LogoAnimation({ onComplete }: LogoAnimationProps) {
           duration: 0.3,
           ease: "power2.out",
         })
-        // Morph entire HappyRobot compound path to Trinity compound path
+        // Morph entire HappyRobot compound path to Henkel compound path
         .to(
           happyrobotPath,
           {
             morphSVG: {
-              shape: trinityPath,
+              shape: henkelPath,
               map: "complexity", // Match subpaths by point count
             },
             duration: 1.2,
@@ -111,14 +111,14 @@ export function LogoAnimation({ onComplete }: LogoAnimationProps) {
         className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/15 blur-3xl"
       />
 
-      {/* HappyRobot Compound Logo - will morph to Trinity */}
+      {/* HappyRobot Compound Logo - will morph to Henkel */}
       <div className="absolute left-1/2 top-1/2" style={{ transform: "translate(-50%, -50%)" }}>
         <HappyRobotCompound ref={happyrobotRef} width={150} height={118} />
       </div>
 
-      {/* Trinity Compound Logo - hidden, used as morph target */}
+      {/* Henkel Compound Logo - hidden, used as morph target */}
       <div className="pointer-events-none fixed opacity-0" aria-hidden="true">
-        <TrinityCompound ref={trinityRef} width={150} height={123} />
+        <HenkelCompound ref={henkelRef} width={150} height={123} />
       </div>
 
       {/* Text - absolutely centered below logo */}
@@ -126,7 +126,7 @@ export function LogoAnimation({ onComplete }: LogoAnimationProps) {
         ref={textRef}
         className="absolute left-1/2 top-1/2 mt-24 -translate-x-1/2 text-center text-sm tracking-widest text-white/60"
       >
-        HAPPYROBOT × TRINITY
+        HAPPYROBOT × HENKEL
       </div>
     </div>
   );
