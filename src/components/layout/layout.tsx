@@ -757,7 +757,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {isCollapsed && (
             <div className="flex shrink-0 items-center justify-center">
               <Image
-                src="/henkel/Henkel-logo.svg.png"
+                src="/henkel/Henkel-Logo.svg.png"
                 alt="Henkel"
                 width={32}
                 height={32}
@@ -769,7 +769,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {!isCollapsed && (
             <div ref={logoTextRef} className="whitespace-nowrap" style={{ opacity: 0 }}>
               <Image
-                src="/henkel/Henkel-logo.svg.png"
+                src="/henkel/Henkel-Logo.svg.png"
                 alt="Henkel Industries"
                 width={140}
                 height={32}
