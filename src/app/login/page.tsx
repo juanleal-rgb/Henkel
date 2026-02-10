@@ -212,13 +212,7 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div ref={logoRef} className="mb-10 flex flex-col items-center">
-          <Image
-            src="/henkel/HNK-expanded-white.png"
-            alt="Henkel"
-            width={200}
-            height={80}
-            priority
-          />
+          <Image src="/henkel/Henkel-logo.svg.png" alt="Henkel" width={200} height={80} priority />
           <p className="mt-4 text-[13px] font-medium tracking-wide text-white/40">
             Manufacturing Logistics, Simplified. By HappyRobot AI.
           </p>
